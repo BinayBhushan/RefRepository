@@ -1,0 +1,58 @@
+﻿@*@model Uniconta.DataModel.GLDimType*@
+@model dynamic
+@*@model Uniconta.ClientTools.DataModel.GLDimType1Client*@
+@using Uniconta_Web.CustomHtmlHelpers;
+@using Uniconta.ClientTools;
+@{
+    Layout = null;
+    var SelectedIndexVal = ViewBag.SelectedIndexVal;
+}
+
+@(ToolBarHelper.CustomToolbar(Html.DevExtreme().Toolbar(), "ToolBarUniconta")
+        .Items(items =>
+        {
+            items.Add()
+            .LocateInMenu(ToolbarItemLocateInMenuMode.Auto)
+                .Widget(w => w
+                .Button()
+                   .ElementAttr(new Dictionary<string, object>() { { "class", "TopMenuButton" } })
+                   .ID("btnCreateDimension")
+                   .Icon("add")
+                   .HoverStateEnabled(true)
+                   .Text(@Html.Raw(Localization.lookup("Add")).ToString())
+                   .OnClick("insertNewDimension")
+                   .UseSubmitBehavior(false)).Location(ToolbarItemLocation.Before);
+
+            items.Add()
+            .LocateInMenu(ToolbarItemLocateInMenuMode.Auto)
+                .Widget(w => w
+                .Button()
+                .ID("btnDimSetUp")
+                    .ElementAttr(new Dictionary<string, object>() { { "class", "TopMenuButton MenuButton" } })
+                    .Icon(Url.Content("~/images/Dimension_Setup_32x32.png"))
+                    .HoverStateEnabled(true)
+                    .Text(@Html.Raw(Localization.lookup("SetupDimension")).ToString())
+                    .OnClick("LoadDimensionSetUp")
+                    )
+                    .Location(ToolbarItemLocation.Before);
+        }).GlobalToolbar("dxGridDimensions")
+)
+
+@(Html.DevExtreme().DataGrid().CustomGrid("dxGridDimensions")
+    .ID("dxGridDimensions")
+    .DataSource(d => d.Mvc().Controller("Dimensions").LoadAction("LoadDimensions").UpdateAction("UpdateDimension").InsertAction("InsertDimension").DeleteAction("DeleteDimension").LoadParams(new { SelectedIndexVal = SelectedIndexVal, IsGridRefreshed = new JS("function() { return isGridRefreshed;}") }).Key("RowId"))
+    .Selection(s => s.Mode(SelectionMode.Single))
+    .ColumnFixing(m => m.Enabled(true))
+    .ColumnAutoWidth(true)
+    .Editing(e => { e.Mode(GridEditMode.Row); e.AllowDeleting(true);e.AllowUpdating(true);
+    })
+    .Scrolling(m => m.ShowScrollbar(ShowScrollbarMode.Always))
+.Columns(c =>
+{
+    c.Add().DataField("Dimension");
+    c.Add().DataField("Name");
+})
+.OnSelectionChanged("selection_changed")
+
+)
+
